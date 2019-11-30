@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10.0)
-project(marko VERSION 0.0.1 LANGUAGES CXX)
+project(marko VERSION 0.5.0 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -42,8 +42,6 @@ target_include_directories(${PROJECT_NAME}
     PUBLIC
         ${CMAKE_SOURCE_DIR}/include
         ${PROJECT_BINARY_DIR}/include
-        # $<INSTALL_INTERFACE:include>
-        # $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
 )
 
 # Add an alias so that library can be used inside the build tree, e.g. when testing
