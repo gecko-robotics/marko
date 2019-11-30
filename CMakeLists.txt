@@ -20,14 +20,34 @@ message(STATUS " ${OSN}: ${OS_VERSION}")
 message(STATUS " ${PROC}")
 message(STATUS "-------------------------------------")
 
-# Library =====================================================================
-set(SOURCES src/ascii.cpp src/bsocket.cpp src/mcsocket.cpp src/ssocket.cpp)
 
-add_library(${PROJECT_NAME} SHARED ${SOURCES})
+# Library =====================================================================
+# option(BUILD_SHARED "Build dynamic shared library" ON)
+# if(${BUILD_SHARED})
+#     add_library(${PROJECT_NAME} SHARED $<TARGET_OBJECTS:obj>)
+# else()
+#     add_library(${PROJECT_NAME} STATIC $<TARGET_OBJECTS:obj>)
+# endif()
+
+# makeing an object allows us to build both shared and static
+# w/o having to build library twice ... I really don't make
+# use of this here :)
+add_library(${PROJECT_NAME} SHARED
+    src/ascii.cpp
+    src/bsocket.cpp
+    src/mcsocket.cpp
+    src/ssocket.cpp
+)
 target_include_directories(${PROJECT_NAME}
     PUBLIC
-        ./include
+        ${CMAKE_SOURCE_DIR}/include
+        ${PROJECT_BINARY_DIR}/include
+        # $<INSTALL_INTERFACE:include>
+        # $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
 )
+
+# Add an alias so that library can be used inside the build tree, e.g. when testing
+# add_library(Marko::marko ALIAS ${PROJECT_NAME})
 
 # Examples ====================================================================
 option(EXAMPLES "Simple examples" ON)
@@ -36,28 +56,12 @@ if (EXAMPLES)
 endif()
 
 # Install =====================================================================
-set(MARKO_BASE_PATH "/opt/gecko")
+# set(MARKO_BASE_PATH "/opt/gecko")
 # set(CMAKE_INSTALL_PREFIX ${MARKO_BASE_PATH})
-set(MARKO_BIN     "${CMAKE_INSTALL_PREFIX}/bin")
-set(MARKO_LIB     "${CMAKE_INSTALL_PREFIX}/lib")
-set(MARKO_CMAKE   "${CMAKE_INSTALL_PREFIX}/lib/cmake")
-set(MARKO_INCLUDE "${CMAKE_INSTALL_PREFIX}/include/marko")
+# set(MARKO_BIN     "${CMAKE_INSTALL_PREFIX}/bin")
+# set(MARKO_LIB     "${CMAKE_INSTALL_PREFIX}/lib")
+# set(MARKO_CMAKE   "${CMAKE_INSTALL_PREFIX}/lib/cmake")
+# set(MARKO_INCLUDE "${CMAKE_INSTALL_PREFIX}/include/marko")
 
-install(TARGETS ${PROJECT_NAME}
-  ARCHIVE DESTINATION ${MARKO_LIB}  # static libraries
-  LIBRARY DESTINATION ${MARKO_LIB}  # shared libraries
-  RUNTIME DESTINATION ${MARKO_BIN}  # executables
-)
-
-install(DIRECTORY include/marko/
-  DESTINATION ${MARKO_INCLUDE}
-  FILES_MATCHING PATTERN "*.hpp"
-)
-
-install(
-    FILES cmake/markoConfig.cmake
-    DESTINATION ${MARKO_CMAKE}/marko
-)
-
-message(STATUS ">> Building examples: ${EXAMPLES}")
-message(STATUS ">> Installing to CMAKE_INSTALL_PREFIX: ${CMAKE_INSTALL_PREFIX}")
+# set(CMAKE_INSTALL_PREFIX "/opt/gecko")
+include("cmake/template.cmake")

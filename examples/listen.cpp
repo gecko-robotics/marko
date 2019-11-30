@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 
-#include "marko/mcsocket.hpp"
+#include <marko/mcsocket.hpp>
 #include "marko/bsocket.hpp"
 #include "marko/ascii.hpp"
 
