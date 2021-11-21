@@ -12,7 +12,7 @@ using namespace std;
 int main(){
 
 #if 1
-    MCSocket sock("224.0.0.1", 11311);
+    MCSocket sock("224.0.0.251", 5353);
     sock.multicastLoop(false);
     sock.timeToLive(1);
 #else

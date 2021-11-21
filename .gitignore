@@ -5,3 +5,4 @@ build
 archive
 poetry.lock
 dist
+.pytest_cache
