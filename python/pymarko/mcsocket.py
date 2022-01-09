@@ -138,35 +138,3 @@ class MultiCastSocket:
             #     print("not my sock")
 
         return ret
-
-#
-# if len(sys.argv) != 2:
-#     print("Usage: ./mc.py message")
-#
-# msg = sys.argv[1]
-# mc = MultiCastSocket(group=('224.0.0.1', 11311), ttl=2, timeout=1)
-# print(">>", mc.info())
-# # print(mc.sock.proto)
-#
-# while True:
-#     try:
-#         if msg != "no": mc.cast(msg)
-#         # time.sleep(3)
-#         # print(">> beacon sent: {}".format(msg))
-#         data, address = mc.recv()
-#         # data, address = mc.recv_nb()
-#         if data is None:
-#             print("timeout")
-#             continue
-#
-#         data = data.decode("utf-8")
-#         if data != msg:
-#             print(">> {} from {}".format(data, address))
-#         else:
-#             print("** echo")
-#         if msg != "no": time.sleep(3)
-#     except KeyboardInterrupt:
-#         print("ctrl-z")
-#         break
-#     # except Exception as e:
-#     #     print("***", e, "***")

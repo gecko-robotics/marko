@@ -1,13 +1,7 @@
-#!/usr/bin/env python3
-
-import threading
-import time
 import socket
 from pymarko import get_ip
-import struct
-from collections import namedtuple
+
 MAX_PACKET_SIZE = 6000
-# import numpy as np
 
 """
 sub.bind
@@ -15,23 +9,6 @@ sub.multicast -> pub.listen
 pub.connect
 pub.publish -> sub.subscribe
 """
-
-
-geckoIP = namedtuple("geckoIP", "address port")
-
-class Sensor:
-    id = 0
-    def __init__(self, fmt):
-        self.fmt = fmt
-
-    def pack(self, data):
-        self.id += 1
-        return struct.pack(self.fmt, data[0], data[1], data[2], self.id)
-
-    def unpack(self, data):
-        return struct.unpack(self.fmt, data)
-
-
 
 
 class SocketUDP:
@@ -49,6 +26,9 @@ class SocketUDP:
         print(f"sudp timeout: {self.sock.type}")
         print(f"sudp blocking: {self.sock.getblocking()}")
         print(f"sudp fileno: {self.sock.fileno()}")
+
+    def __del__(self):
+        self.sock.close()
 
     def recv(self, size):
         """
@@ -160,70 +140,17 @@ class Subscriber(Base):
     def __init__(self):
         self.sock = SocketUDP()
 
-    def subscribe(self, topic, callback):
-        self.sock.send(f"s:{topic}".encode("utf8"))
+    def subscribe(self, callback, topic=None):
+        if topic is not None:
+            self.sock.send(f"s:{topic}".encode("utf8"))
         self.cb.append(callback)
 
-    def loop(self):
-        while self.event.isSet():
+    def loop(self, event=None):
+        # while self.event.isSet():
+        while self.event:
             data = self.sock.recv(100)
             if data is None or len(data) == 0:
                 print("-- no data")
                 continue
             for callback in self.cb:
                 callback(data)
-
-
-
-services = {}
-
-def server(e):
-    pub = Publisher()
-    pub.bind("bob", 9500)
-    pub.listen()
-
-    packer = Sensor("<3dL")
-    i = 0
-    while e.isSet():
-        print(f"<< {i}")
-        p = packer.pack((i,i,i,))
-        pub.publish(p)
-        time.sleep(0.1)
-        i += 1
-
-def client(e):
-    unpacker = Sensor("<3dL")
-    def myfunc(data):
-        d = unpacker.unpack(data)
-        print(f">> Received {d}[{len(data)}]")
-
-    sub = Subscriber()
-    sub.connect("bob", get_ip(), 9500)
-    sub.event = e
-
-    sub.subscribe("bob", myfunc)
-    sub.loop()
-    print("end client ------------------")
-
-
-if __name__ == "__main__":
-    e = threading.Event()
-    e.set()
-
-    s = threading.Thread(target=server, args=(e,))
-    s.daemon = True
-    s.start()
-
-    c = threading.Thread(target=client, args=(e,))
-    c.daemon = True
-    c.start()
-
-    try:
-        while True:
-            time.sleep(0.5)
-    except KeyboardInterrupt:
-        print("shutting down")
-    finally:
-        e.clear()
-        s.join(timeout=1)
-        c.join(timeout=1)

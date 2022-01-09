@@ -26,7 +26,7 @@ inline constexpr int NO_ERROR = 0;
 // [[deprecated("use SocketError instead")]]
 // __attribute__((deprecated("use SocketError instead")))
 // [[deprecated]]
-struct MulticastError : public std::exception {
+struct /*[[deprecated]]*/ MulticastError : public std::exception {
     MulticastError(const std::string &s): msg("Multicast Error: " + s) {}
     MulticastError(): msg("Multicast Error") {}
     const char * what () const throw () {return msg.c_str();}
@@ -34,6 +34,7 @@ protected:
     std::string msg;
 };
 
+// __attribute__((deprecated("test")))
 struct SocketError : public std::exception {
     SocketError(const std::string &s): msg("Soccket Error: " + s) {}
     SocketError(): msg("Socket Error") {}
@@ -41,6 +42,7 @@ struct SocketError : public std::exception {
 protected:
     std::string msg;
 };
+//__attribute__((deprecated("test")))
 
 using MsgAddr = std::tuple<std::string, struct sockaddr_in>;
 struct sockaddr_in make(const std::string& saddr, int port);
