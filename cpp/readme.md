@@ -3,11 +3,18 @@
 A simple library to do reply and request over UDP. This does either multicast
 or broadcast to send/receive a message.
 
-## Language
+## Usage
 
-- python
-- cpp
-- swift
+This library requires a C++17 compiler and an up to date `cmake`.
+
+```
+mkdir build
+cd build
+cmake ..
+```
+## Examples
+
+There are 3 examples in the source directory.
 
 
 # MIT License
