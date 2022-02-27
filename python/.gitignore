@@ -1,0 +1,7 @@
+.DS_Store
+._*
+old
+*.pyc
+*.lock
+*_cache
+__pycache__

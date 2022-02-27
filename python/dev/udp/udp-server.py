@@ -9,6 +9,7 @@ import struct
 # from collections import namedtuple
 # MAX_PACKET_SIZE = 6000
 # import numpy as np
+from pymarko.udpsocket import Subscriber, Publisher
 
 """
 sub.bind
@@ -16,9 +17,6 @@ sub.multicast -> pub.listen
 pub.connect
 pub.publish -> sub.subscribe
 """
-
-
-from udpsocket import Subscriber, Publisher
 
 if __name__ == "__main__":
 
