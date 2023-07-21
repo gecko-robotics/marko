@@ -1,8 +1,11 @@
 build
-*.pyc
+
 .DS_Store
 ._*
 archive
+old
+
+*.pyc
 poetry.lock
 dist
 .pytest_cache
