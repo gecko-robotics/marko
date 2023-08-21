@@ -91,12 +91,14 @@ const SockAddr& filter(const std::string& address) {
   return std::move(ans);
 }
 
+inline
 const inetaddr_t& inet_sockaddr(const std::string &path) {
-  return std::move(filter(path).inet);
+  return filter(path).inet;
 }
 
+inline
 const unixaddr_t& unix_sockaddr(const std::string &path) {
-  return std::move(filter(path).unix);
+  return filter(path).unix;
 }
 
 /////////////////////////////////////////////////////////////////
