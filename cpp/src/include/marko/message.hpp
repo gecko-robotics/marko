@@ -13,14 +13,14 @@ DEC =    BIN    = HEX
 15  = 0000 1111 = 0F
 */
 
-struct __attribute__((packed)) subscription_t {
-  uint8_t topic;
-  uint8_t status;
-};
+// struct __attribute__((packed)) subscription_t {
+//   uint8_t topic;
+//   uint8_t status;
+// };
 
 using message_t = std::vector<uint8_t>;
-constexpr uint8_t SUBSCRIBE = 0xAA;
-constexpr uint8_t UNSUBSCRIBE = 0x55;
+// constexpr uint8_t SUBSCRIBE = 0xAA;
+// constexpr uint8_t UNSUBSCRIBE = 0x55;
 
 template<typename T>
 message_t pack(const T& d) {

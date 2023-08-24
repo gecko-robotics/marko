@@ -45,7 +45,6 @@ union SockAddr {
   unixaddr_t unix;
 };
 
-
 static
 const SockAddr& filter(const std::string& address) {
   std::regex proto("(udp|tcp|unix)\\:\\/\\/([a-z,A-Z,\\d,\\/,.,*,_,-,:]+)");
