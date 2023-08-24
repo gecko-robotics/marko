@@ -6,8 +6,62 @@
 #include <vector>
 #include <string>
 #include <sys/socket.h>
-#include "sockaddr.hpp"
+// #include "sockaddr.hpp"
+#include <unistd.h>     // gethostname()
+#include <netdb.h>      // gethostbyname
 
+
+// https://beej.us/guide/bgnet/html/multi/gethostbynameman.html
+// PLEASE NOTE: these two functions are superseded by getaddrinfo() and
+// getnameinfo()! In particular, gethostbyname() doesn't work well with IPv6.
+static
+std::string get_hostname() {
+  char name[256] = {0};
+  int flags = 0;
+  inetaddr_t addr = inet_sockaddr("udp://127.0.0.1:9000");
+  // guard(::gethostname(name, 256), "gethostname() failed");
+  // ::gethostname(name, 256);
+  int result = ::getnameinfo(
+    (const sockaddr_t*)&addr, sizeof(addr),
+    name, 265, // host name
+    NULL, 0,  // service name ... don't care
+    flags);
+  return std::string(name);
+}
+
+static
+std::string get_host_ip() {
+  // Create a socket
+  int sockfd = ::socket(AF_INET, SOCK_DGRAM, 0);
+  if (sockfd < 0) {
+    // throw std::runtime_error("get_host_ip error");
+    return "";
+  }
+
+  // you need to connect to get your IP address, even
+  // a failed connect works
+  inetaddr_t addr  = inet_sockaddr("udp://9.9.9.9:9999");
+  ::connect(sockfd, (sockaddr_t*)&addr, sizeof(addr));
+
+  // Get the local address
+  socklen_t addrlen;
+  memset(&addr, 0, sizeof(addr));
+  addr.sin_family      = AF_INET;
+  addr.sin_addr.s_addr = INADDR_ANY;
+  addrlen              = sizeof(addr);
+  if (::getsockname(sockfd, (sockaddr_t *)&addr, &addrlen) < 0) {
+    // throw std::runtime_error("get_host_ip error");
+    return "";
+  }
+
+  // Convert the address to a string
+  std::string address(inet_ntoa(addr.sin_addr));
+
+  // Close the socket
+  close(sockfd);
+
+  return address;
+}
 
 
 class SocketInfo {

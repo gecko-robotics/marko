@@ -11,5 +11,5 @@ LIST(APPEND APPS
 
 foreach(MAIN ${APPS})
     add_executable(${MAIN} ${MAIN}.cpp)
-    target_link_libraries(${MAIN} PRIVATE marko)
+    target_link_libraries(${MAIN} PRIVATE ${PROJECT_NAME})
 endforeach()

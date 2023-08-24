@@ -5,12 +5,13 @@
 ***************************************************/
 #pragma once
 
+#include <socket_defs.hpp>
+
 #include "ascii.hpp"
 #include "time.hpp"
-#include "message.hpp"
+// #include "message.hpp"
 #include "event.hpp"
 #include "sockaddr.hpp"
-#include "socket.hpp"
 #include "socket_udp.hpp"
 #include "socket_bc.hpp"
 #include "socket_uds.hpp"

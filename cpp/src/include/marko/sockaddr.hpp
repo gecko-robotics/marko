@@ -23,191 +23,193 @@ struct in_addr {
 **************************************************/
 #pragma once
 
-#include <arpa/inet.h> // for sockaddr_in
-#include <sys/types.h>  // for type definitions like size_t
-#include <iostream>
-#include <string>
-// #include <sys/socket.h> // socket, connect, etc ...
-#include <sys/un.h>     // UDS
-#include <unistd.h>     // gethostname()
-#include <netdb.h>      // gethostbyname
-#include <regex>
+#include <socket_defs.hpp>
 
-constexpr uint32_t AF_ERROR = 100;
+// #include <arpa/inet.h> // for sockaddr_in
+// #include <sys/types.h>  // for type definitions like size_t
+// #include <iostream>
+// #include <string>
+// // #include <sys/socket.h> // socket, connect, etc ...
+// #include <sys/un.h>     // UDS
+// #include <unistd.h>     // gethostname()
+// #include <netdb.h>      // gethostbyname
+// #include <regex>
 
-using sockaddr_t = struct sockaddr;
-using sockaddr_in_t = struct sockaddr_in;
-using inetaddr_t = struct sockaddr_in; // udp or tcp
-using unixaddr_t = struct sockaddr_un; // uds
+// constexpr uint32_t AF_ERROR = 100;
 
-union SockAddr {
-  inetaddr_t inet;
-  unixaddr_t unix;
-};
+// using sockaddr_t = struct sockaddr;
+// using sockaddr_in_t = struct sockaddr_in;
+// using inetaddr_t = struct sockaddr_in; // udp or tcp
+// using unixaddr_t = struct sockaddr_un; // uds
 
-static
-const SockAddr& filter(const std::string& address) {
-  std::regex proto("(udp|tcp|unix)\\:\\/\\/([a-z,A-Z,\\d,\\/,.,*,_,-,:]+)");
-  std::smatch m;
+// union SockAddr {
+//   inetaddr_t inet;
+//   unixaddr_t unix;
+// };
 
-  // find [original, protocol, path|ip:port]
-  regex_search(address, m, proto);
-  SockAddr ans{0};
-  ans.inet.sin_family = AF_ERROR;
+// static
+// const SockAddr& filter(const std::string& address) {
+//   std::regex proto("(udp|tcp|unix)\\:\\/\\/([a-z,A-Z,\\d,\\/,.,*,_,-,:]+)");
+//   std::smatch m;
 
-  if (m.size() != 3) return std::move(ans);
-  else if (m[1] == "unix"){
-    std::string path = m[2];
+//   // find [original, protocol, path|ip:port]
+//   regex_search(address, m, proto);
+//   SockAddr ans{0};
+//   ans.inet.sin_family = AF_ERROR;
 
-    ans.unix.sun_family = AF_UNIX;
-    strncpy(ans.unix.sun_path, path.c_str(), path.size());
-    return std::move(ans);
-  }
-  else if (m[1] == "tcp" || m[1] == "udp") {
-    uint16_t port;
-    uint32_t ip;
-    std::string ss = m[2];
-    std::regex ipport("([a-z,A-Z,\\d,\\/,.,*]+):([*,\\d]+)");
-    std::smatch mm;
+//   if (m.size() != 3) return std::move(ans);
+//   else if (m[1] == "unix"){
+//     std::string path = m[2];
 
-    // find [original, ip, port]
-    regex_search(ss, mm, ipport);
-    if (mm.size() != 3) return std::move(ans);
+//     ans.unix.sun_family = AF_UNIX;
+//     strncpy(ans.unix.sun_path, path.c_str(), path.size());
+//     return std::move(ans);
+//   }
+//   else if (m[1] == "tcp" || m[1] == "udp") {
+//     uint16_t port;
+//     uint32_t ip;
+//     std::string ss = m[2];
+//     std::regex ipport("([a-z,A-Z,\\d,\\/,.,*]+):([*,\\d]+)");
+//     std::smatch mm;
 
-    else if (mm[1] == "*") ip = INADDR_ANY;
-    else if (mm[1] == "bc") ip = INADDR_BROADCAST;
-    else ip = inet_addr(mm[1].str().c_str());
+//     // find [original, ip, port]
+//     regex_search(ss, mm, ipport);
+//     if (mm.size() != 3) return std::move(ans);
 
-    if (mm[2] == "*") port = 0;
-    else port = stoi(mm[2]);
+//     else if (mm[1] == "*") ip = INADDR_ANY;
+//     else if (mm[1] == "bc") ip = INADDR_BROADCAST;
+//     else ip = inet_addr(mm[1].str().c_str());
 
-    ans.inet.sin_family      = AF_INET;
-    ans.inet.sin_addr.s_addr = ip;
-    ans.inet.sin_port        = htons(port);
-    return std::move(ans);
-  }
+//     if (mm[2] == "*") port = 0;
+//     else port = stoi(mm[2]);
 
-  return std::move(ans);
-}
+//     ans.inet.sin_family      = AF_INET;
+//     ans.inet.sin_addr.s_addr = ip;
+//     ans.inet.sin_port        = htons(port);
+//     return std::move(ans);
+//   }
 
-inline
-const inetaddr_t& inet_sockaddr(const std::string &path) {
-  return filter(path).inet;
-}
+//   return std::move(ans);
+// }
 
-inline
-const unixaddr_t& unix_sockaddr(const std::string &path) {
-  return filter(path).unix;
-}
+// inline
+// const inetaddr_t& inet_sockaddr(const std::string &path) {
+//   return filter(path).inet;
+// }
 
-/////////////////////////////////////////////////////////////////
-
-static
-std::string inet2string(const inetaddr_t &addr) {
-  char ip[32] = {0};
-
-  if (addr.sin_family == AF_INET) {
-    ::inet_ntop(AF_INET, &(addr.sin_addr),ip,sizeof(ip));
-    std::string host(ip,strlen(ip));
-    host += ":" + std::to_string(ntohs(addr.sin_port));
-    return host;
-  }
-  return "";
-}
-
-static
-std::string unix2string(const unixaddr_t &addr) {
-  char ip[32] = {0};
-
-  if (addr.sun_family == AF_UNIX) {
-    // ::inet_ntop(AF_INET, &(addr.sin_addr),ip,sizeof(ip));
-    // std::string host(ip,strlen(ip));
-    // host += ":" + std::to_string(ntohs(addr.sin_port));
-    // std::cerr << "unix2string: " << addr.sun_path << std::endl;
-    // std::string host(addr.sun_path, strlen(addr.sun_path));
-    std::string host(addr.sun_path);
-    return host;
-  }
-  return "";
-}
-
-
-static
-std::ostream &operator<<(std::ostream &os, SockAddr const &s) {
-  sa_family_t type = s.inet.sin_family;
-  if (type == AF_INET) os << inet2string(s.inet);
-  else if (type == AF_UNIX) os <<  s.unix.sun_path;
-  else if (type == AF_ERROR) os << "ERROR";
-  else os << "UNKNOWN";
-  return os;
-}
-
-static
-std::ostream &operator<<(std::ostream &os, unixaddr_t const &s) {
-  os << "path: " << unix2string(s);
-  return os;
-}
-
-static
-std::ostream &operator<<(std::ostream &os, inetaddr_t const &s) {
-  os << inet2string(s);
-  return os;
-}
+// inline
+// const unixaddr_t& unix_sockaddr(const std::string &path) {
+//   return filter(path).unix;
+// }
 
 /////////////////////////////////////////////////////////////////
 
+// static
+// std::string inet2string(const inetaddr_t &addr) {
+//   char ip[32] = {0};
 
-// https://beej.us/guide/bgnet/html/multi/gethostbynameman.html
-// PLEASE NOTE: these two functions are superseded by getaddrinfo() and
-// getnameinfo()! In particular, gethostbyname() doesn't work well with IPv6.
-static
-std::string get_hostname() {
-  char name[256] = {0};
-  int flags = 0;
-  inetaddr_t addr = inet_sockaddr("udp://127.0.0.1:9000");
-  // guard(::gethostname(name, 256), "gethostname() failed");
-  // ::gethostname(name, 256);
-  int result = ::getnameinfo(
-    (const sockaddr_t*)&addr, sizeof(addr),
-    name, 265, // host name
-    NULL, 0,  // service name ... don't care
-    flags);
-  return std::string(name);
-}
+//   if (addr.sin_family == AF_INET) {
+//     ::inet_ntop(AF_INET, &(addr.sin_addr),ip,sizeof(ip));
+//     std::string host(ip,strlen(ip));
+//     host += ":" + std::to_string(ntohs(addr.sin_port));
+//     return host;
+//   }
+//   return "";
+// }
 
-static
-std::string get_host_ip() {
-  // Create a socket
-  int sockfd = ::socket(AF_INET, SOCK_DGRAM, 0);
-  if (sockfd < 0) {
-    // throw std::runtime_error("get_host_ip error");
-    return "";
-  }
+// static
+// std::string unix2string(const unixaddr_t &addr) {
+//   // char ip[32] = {0};
 
-  // you need to connect to get your IP address, even
-  // a failed connect works
-  inetaddr_t addr  = inet_sockaddr("udp://9.9.9.9:9999");
-  ::connect(sockfd, (sockaddr_t*)&addr, sizeof(addr));
+//   if (addr.sun_family == AF_UNIX) {
+//     // ::inet_ntop(AF_INET, &(addr.sin_addr),ip,sizeof(ip));
+//     // std::string host(ip,strlen(ip));
+//     // host += ":" + std::to_string(ntohs(addr.sin_port));
+//     // std::cerr << "unix2string: " << addr.sun_path << std::endl;
+//     // std::string host(addr.sun_path, strlen(addr.sun_path));
+//     std::string host(addr.sun_path);
+//     return host;
+//   }
+//   return "";
+// }
 
-  // Get the local address
-  socklen_t addrlen;
-  memset(&addr, 0, sizeof(addr));
-  addr.sin_family      = AF_INET;
-  addr.sin_addr.s_addr = INADDR_ANY;
-  addrlen              = sizeof(addr);
-  if (::getsockname(sockfd, (sockaddr_t *)&addr, &addrlen) < 0) {
-    // throw std::runtime_error("get_host_ip error");
-    return "";
-  }
 
-  // Convert the address to a string
-  std::string address(inet_ntoa(addr.sin_addr));
+// static
+// std::ostream &operator<<(std::ostream &os, SockAddr const &s) {
+//   sa_family_t type = s.inet.sin_family;
+//   if (type == AF_INET) os << inet2string(s.inet);
+//   else if (type == AF_UNIX) os <<  s.unix.sun_path;
+//   else if (type == AF_ERROR) os << "ERROR";
+//   else os << "UNKNOWN";
+//   return os;
+// }
 
-  // Close the socket
-  close(sockfd);
+// static
+// std::ostream &operator<<(std::ostream &os, unixaddr_t const &s) {
+//   os << "path: " << unix2string(s);
+//   return os;
+// }
 
-  return address;
-}
+// static
+// std::ostream &operator<<(std::ostream &os, inetaddr_t const &s) {
+//   os << inet2string(s);
+//   return os;
+// }
+
+/////////////////////////////////////////////////////////////////
+
+
+// // https://beej.us/guide/bgnet/html/multi/gethostbynameman.html
+// // PLEASE NOTE: these two functions are superseded by getaddrinfo() and
+// // getnameinfo()! In particular, gethostbyname() doesn't work well with IPv6.
+// static
+// std::string get_hostname() {
+//   char name[256] = {0};
+//   int flags = 0;
+//   inetaddr_t addr = inet_sockaddr("udp://127.0.0.1:9000");
+//   // guard(::gethostname(name, 256), "gethostname() failed");
+//   // ::gethostname(name, 256);
+//   int result = ::getnameinfo(
+//     (const sockaddr_t*)&addr, sizeof(addr),
+//     name, 265, // host name
+//     NULL, 0,  // service name ... don't care
+//     flags);
+//   return std::string(name);
+// }
+
+// static
+// std::string get_host_ip() {
+//   // Create a socket
+//   int sockfd = ::socket(AF_INET, SOCK_DGRAM, 0);
+//   if (sockfd < 0) {
+//     // throw std::runtime_error("get_host_ip error");
+//     return "";
+//   }
+
+//   // you need to connect to get your IP address, even
+//   // a failed connect works
+//   inetaddr_t addr  = inet_sockaddr("udp://9.9.9.9:9999");
+//   ::connect(sockfd, (sockaddr_t*)&addr, sizeof(addr));
+
+//   // Get the local address
+//   socklen_t addrlen;
+//   memset(&addr, 0, sizeof(addr));
+//   addr.sin_family      = AF_INET;
+//   addr.sin_addr.s_addr = INADDR_ANY;
+//   addrlen              = sizeof(addr);
+//   if (::getsockname(sockfd, (sockaddr_t *)&addr, &addrlen) < 0) {
+//     // throw std::runtime_error("get_host_ip error");
+//     return "";
+//   }
+
+//   // Convert the address to a string
+//   std::string address(inet_ntoa(addr.sin_addr));
+
+//   // Close the socket
+//   close(sockfd);
+
+//   return address;
+// }
 
 
 

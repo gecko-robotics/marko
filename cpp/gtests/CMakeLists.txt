@@ -1,21 +1,21 @@
-# GTest -----------------
-include(FetchContent)
-# FetchContent_Declare(gtest
-#   GIT_REPOSITORY "https://github.com/google/googletest"
-#   GIT_TAG "origin/main"
-#   SOURCE_DIR "${CMAKE_BINARY_DIR}/_deps/gtest"
+# # GTest -----------------
+# include(FetchContent)
+# # FetchContent_Declare(gtest
+# #   GIT_REPOSITORY "https://github.com/google/googletest"
+# #   GIT_TAG "origin/main"
+# #   SOURCE_DIR "${CMAKE_BINARY_DIR}/_deps/gtest"
+# # )
+# FetchContent_Declare(
+#     gtest
+#     URL https://github.com/google/googletest/archive/refs/tags/v1.14.0.zip
 # )
-FetchContent_Declare(
-    gtest
-    URL https://github.com/google/googletest/archive/refs/tags/v1.14.0.zip
-)
 
-FetchContent_MakeAvailable(gtest)
-if(gtest_POPULATED)
-    message(STATUS "=> Found gtest")
-else()
-    message(STATUS "*** Didn't find gtest")
-endif()
+# FetchContent_MakeAvailable(gtest)
+# if(gtest_POPULATED)
+#     message(STATUS "=> Found gtest")
+# else()
+#     message(STATUS "*** Didn't find gtest")
+# endif()
 
 enable_testing()
 

@@ -18,12 +18,13 @@
 #include <unistd.h>     // for close()
 // #include <map>
 #include <regex>
+#include <socket_defs.hpp>
 
 extern int errno; // don't like this global value
 
-constexpr int SOCKET_ERR = -1;
-constexpr int SOCKET_TIMEOUT = -1;
-constexpr int SOCKET_OK = 0;
+// constexpr int SOCKET_ERR = -1;
+// constexpr int SOCKET_TIMEOUT = -1;
+// constexpr int SOCKET_OK = 0;
 
 
 class Socket {
@@ -166,7 +167,7 @@ protected:
       else guard(-1, "Socket UDS neither connect or bind");
     }
     else if (m[1] == "tcp" || m[1] == "udp") {
-      sockaddr_in_t addr = inet_sockaddr(address);
+      inetaddr_t addr = inet_sockaddr(address);
 
       int err = 0;
       if (type == CONNECT) err = ::connect(socket_fd, (const sockaddr_t *)&addr, sizeof(addr));

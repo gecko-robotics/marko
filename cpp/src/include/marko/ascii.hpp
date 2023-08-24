@@ -20,34 +20,34 @@ using ascii_t = std::vector<std::string>;
  Ex: (key|topic|pid) -> dalek|camera|13412
 
  */
-class Ascii {
-public:
-  Ascii(char separator = '|') : sep(separator) {}
+// class Ascii {
+// public:
+//   Ascii(char separator = '|') : sep(separator) {}
 
-  ascii_t &unpack(const std::string &str) {
-    toks.clear();
-    std::stringstream ss(str);
-    std::string token;
-    try {
-      while (getline(ss, token, sep))
-        toks.push_back(token);
-    } catch (std::exception &e) {
-      // std::cout << e.what() << std::endl;
-      toks.clear();
-      return toks;
-    }
-    return toks;
-  }
+//   ascii_t &unpack(const std::string &str) {
+//     toks.clear();
+//     std::stringstream ss(str);
+//     std::string token;
+//     try {
+//       while (getline(ss, token, sep))
+//         toks.push_back(token);
+//     } catch (std::exception &e) {
+//       // std::cout << e.what() << std::endl;
+//       toks.clear();
+//       return toks;
+//     }
+//     return toks;
+//   }
 
-  std::string pack(ascii_t &v) {
-    std::stringstream ss;
-    ss << v[0];
-    for (int i = 1; i < v.size(); i++)
-      ss << sep << v[i];
-    return ss.str();
-  }
+//   std::string pack(ascii_t &v) {
+//     std::stringstream ss;
+//     ss << v[0];
+//     for (int i = 1; i < v.size(); i++)
+//       ss << sep << v[i];
+//     return ss.str();
+//   }
 
-protected:
-  ascii_t toks;
-  char sep;
-};
+// protected:
+//   ascii_t toks;
+//   char sep;
+// };

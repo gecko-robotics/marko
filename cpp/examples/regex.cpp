@@ -29,7 +29,7 @@ class SockAddress {
       // ret = make_sockaddr(path);
     }
     else if (m[1] == "tcp" || m[1] == "udp") {
-      sockaddr_in_t ret{0};
+      inetaddr_t ret{0};
       regex ipport("([a-z,A-Z,\\d,\\/,.,*]+):([*,\\d]+)");
       smatch mm;
       string ss = m[2];
