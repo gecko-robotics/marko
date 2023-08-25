@@ -6,6 +6,7 @@
 #include <vector>
 #include <string>
 #include <sys/socket.h>
+#include <sys/types.h>
 // #include "sockaddr.hpp"
 #include <unistd.h>     // gethostname()
 #include <netdb.h>      // gethostbyname
