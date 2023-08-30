@@ -51,8 +51,11 @@ FetchContent_MakeAvailable( ${libs} )
 
 # Library =====================================================================
 add_library(${PROJECT_NAME} INTERFACE)
-target_include_directories(${PROJECT_NAME} INTERFACE src/include)
-target_link_libraries(${PROJECT_NAME} INTERFACE ${libs})
+target_include_directories(${PROJECT_NAME} INTERFACE src)
+target_link_libraries(${PROJECT_NAME}
+    INTERFACE
+        socket_defs
+)
 
 # Examples ====================
 message(STATUS "Building ${PROJECT_NAME} examples is ${BUILD_EXAMPLES}")
