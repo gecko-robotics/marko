@@ -5,6 +5,7 @@
 ***************************************************/
 #pragma once
 
+#include <string.h>
 #include <socket_defs.hpp>
 
 // #include "ascii.hpp"

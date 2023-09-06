@@ -5,6 +5,8 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <unistd.h>
+#include <string.h>
+// #include "marko/marko.hpp"
 
 // you can send messages with:
 // nc -u 10.71.6.23 6666
@@ -45,11 +47,11 @@ std::string get_ip_port(const sockaddr_t &addr) {
 }
 
 std::string getsockname(const int socket_fd) {
-    sockaddr_t addr = {0};
-    socklen_t addr_len = sizeof(addr);
-    int err = ::getsockname(socket_fd, (struct sockaddr*)&addr, &addr_len);
-    return get_ip_port(addr);
-  }
+  sockaddr_t addr = {0};
+  socklen_t addr_len = sizeof(addr);
+  int err = ::getsockname(socket_fd, (struct sockaddr*)&addr, &addr_len);
+  return get_ip_port(addr);
+}
 
 void info(int socket_fd){
   u_char val;
