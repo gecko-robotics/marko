@@ -151,7 +151,7 @@ class SocketInfo {
     int err = ::getsockname(socket_fd, (struct sockaddr*)&addr, &addr_len);
     // guard(err, "getsockname(): ");
     if (err < 0) return std::string();
-    return inet2string(addr);
+    return to_string(addr);
   }
 
   std::map<int,std::string> socketTypes {

@@ -72,7 +72,7 @@ public:
     socklen_t addr_len = sizeof(addr);
     int err = ::getsockname(socket_fd, (sockaddr_t*)&addr, &addr_len);
     guard(err, "getsockname(): ");
-    return inet2string(addr);
+    return to_string(addr);
   }
 
   // bool available(long msec=1){

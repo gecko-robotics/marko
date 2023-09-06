@@ -24,7 +24,7 @@ struct __attribute__((packed)) response_t {
 // requester
 void request() {
   inetaddr_t addr = inet_sockaddr("udp://" + HOST + ":" + to_string(PORT));
-  cout << "Request connecting to: " << inet2string(addr) << endl;
+  cout << "Request connecting to: " << to_string(addr) << endl;
 
   RequestUDP r(sizeof(response_t));
   // r.connect();
