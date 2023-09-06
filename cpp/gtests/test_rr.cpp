@@ -22,14 +22,15 @@ vector<request_t> test_data; //[LOOP]{{1},{2},{3},{4},{5}};
 
 // response callback, this processes the
 // request message and returns a response message
-message_t cb(const message_t &m) {
-  // cerr << "cb" << endl;
-  request_t s = unpack<request_t>(m);
+message_t cb2(const message_t &m) {
+  // cout << "cb" << endl;
+  request_t req = unpack<request_t>(m);
 
-  response_t r{2*s.a};
+  response_t r{2*req.a};
   message_t resp = pack<response_t>(r);
 
-  return std::move(resp);
+  // return std::move(resp);
+  return resp;
 }
 
 ////////////////////////////////////////////////////////////
@@ -52,10 +53,11 @@ void req_thread() {
 
 // reply
 void rep_thread() {
+  inetaddr_t addr = inet_sockaddr(udpaddr);
   ReplyUDP r(sizeof(request_t));
-  r.bind(udpbind);
+  r.bind(addr);
 
-  r.register_cb(cb); // you can have more than 1 callback
+  r.register_cb(cb2); // you can have more than 1 callback
   for (int i=0; i<LOOP; ++i) r.once();
 }
 
@@ -75,17 +77,18 @@ void req_thread_un() {
   unixaddr_t addr = unix_sockaddr(unix);
 
   RequestUnix r(sizeof(response_t));
-  r.bind(unix2);
+  r.bind(addr);
 
   // SocketInfo si(r.getSocketFD());
   // si.info("Connect", SocketInfo::UDP);
 
   for (int i=0; i<LOOP; ++i) {
-    message_t msg = pack<request_t>(test_data[i]);
+    request_t req{i};
+    message_t msg = pack<request_t>(req);
     message_t rp = r.request(msg, addr);
     response_t resp = unpack<response_t>(rp);
 
-    EXPECT_EQ(resp.a, 2*test_data[i].a);
+    EXPECT_EQ(resp.a, 2*req.a);
     EXPECT_EQ(rp.size(), sizeof(resp));
 
     marko::msleep(1);
@@ -94,10 +97,12 @@ void req_thread_un() {
 
 // reply
 void rep_thread_un() {
+  unixaddr_t addr = unix_sockaddr(unix2);
   ReplyUnix r(sizeof(request_t));
-  r.bind(unix);
+  r.bind(addr);
+  // r.connect(addr);
 
-  r.register_cb(cb); // you can have more than 1 callback
+  r.register_cb(cb2); // you can have more than 1 callback
   for (int i=0; i<LOOP; ++i) r.once();
 }
 

@@ -56,9 +56,10 @@ message_t cb(const message_t &m) {
 
 // reply
 void reply() {
-  cout << "Reply binding to: " << HOST << ":" << PORT << endl;
+  // cout << "Reply binding to: " << HOST << ":" << PORT << endl;
   ReplyUDP r(sizeof(request_t));
-  r.bind("udp://*:" + to_string(PORT));
+  inetaddr_t addr = inet_sockaddr("udp://*:" + to_string(PORT));
+  r.bind(addr);
   // r.bind(PORT);
   // r.settimeout(1000);
 

@@ -12,6 +12,7 @@ constexpr int LOOP = 5;
 string psudpbind = "udp://*:" + to_string(port);
 string psudpaddr = "udp://127.0.0.1:"+to_string(port);
 string psunix = "unix://./unix.ps.uds";
+string psunix2 = "unix://./unix.ps2.uds";
 
 struct psdata_t { int a; };
 
@@ -26,7 +27,8 @@ void callback(const message_t& m) {
 
 void sub_thread() {
   SubscriberUDP s(sizeof(psdata_t));
-  s.bind(psudpbind);
+  inetaddr_t addr = inet_sockaddr(psudpaddr);
+  s.bind(addr);
 
   // SocketInfo si(s.getSocketFD());
   // si.info("Bind", SocketInfo::UDP);
@@ -61,8 +63,9 @@ TEST(marko, pub_sub_udp) {
 /////////////////////////////////////////
 
 void sub_thread_un() {
+  unixaddr_t addr = unix_sockaddr(psunix);
   SubscriberUnix s(sizeof(psdata_t));
-  s.bind(psunix);
+  s.bind(addr);
 
   s.register_cb( callback );
   for (int i=0; i < LOOP; ++i) {

@@ -66,14 +66,14 @@ public:
     guard(err, "setsockopt(): ");
   }
 
-  // FIXME: move to UDP
-  std::string getsockname() {
-    inetaddr_t addr = {0};
-    socklen_t addr_len = sizeof(addr);
-    int err = ::getsockname(socket_fd, (sockaddr_t*)&addr, &addr_len);
-    guard(err, "getsockname(): ");
-    return to_string(addr);
-  }
+  // // FIXME: move to UDP
+  // std::string getsockname() {
+  //   inetaddr_t addr = {0};
+  //   socklen_t addr_len = sizeof(addr);
+  //   int err = ::getsockname(socket_fd, (sockaddr_t*)&addr, &addr_len);
+  //   guard(err, "getsockname(): ");
+  //   return to_string(addr);
+  // }
 
   // bool available(long msec=1){
   bool available(){
@@ -120,8 +120,8 @@ public:
     }
   }
 
-  void bind(const std::string& address) { setSocket(address, BIND); }
-  void connect(const std::string& address) { setSocket(address, CONNECT); }
+  // void bind(const std::string& address) { setSocket(address, BIND); }
+  // void connect(const std::string& address) { setSocket(address, CONNECT); }
 
 protected:
   void makeSocket(int family, int type, int proto) {
@@ -137,45 +137,46 @@ protected:
     }
   }
 
-  enum ConType: uint8_t {
-    CONNECT,
-    BIND
-  };
+  // enum ConType: uint8_t {
+  //   CONNECT,
+  //   BIND
+  // };
 
-  void setSocket(const std::string& address, const ConType type) {
-    std::regex proto("(udp|tcp|unix)\\:\\/\\/([a-z,A-Z,\\d,\\/,.,*,_,-,:]+)");
-    std::smatch m;
-    regex_search(address, m, proto);
+  // // FIXME: clean this up ... don't like so much in one function
+  // void setSocket(const std::string& address, const ConType type) {
+  //   std::regex proto("(udp|tcp|unix)\\:\\/\\/([a-z,A-Z,\\d,\\/,.,*,_,-,:]+)");
+  //   std::smatch m;
+  //   regex_search(address, m, proto);
 
-    if (m.size() == 0) {
-      guard(-1, "Socket UDS address invalide: " + address);
-    }
-    else if (m[1] == "unix"){
-      unixaddr_t addr = unix_sockaddr(address);
+  //   if (m.size() == 0) {
+  //     guard(-1, "Socket UDS address invalide: " + address);
+  //   }
+  //   else if (m[1] == "unix"){
+  //     unixaddr_t addr = unix_sockaddr(address);
 
-      std::string path(m[2]);
-      unlink(path.c_str());
-      int err = 0;
-      if (type == CONNECT) {
-        err = ::connect(socket_fd, (const sockaddr_t*)&addr, sizeof(addr));
-        guard(err, "Socket UDS couldn't connect: ");
-      }
-      else if (type == BIND) {
-        err = ::bind(socket_fd, (const sockaddr_t*)&addr, sizeof(addr));
-        guard(err, "Socket UDS couldn't bind: ");
-      }
-      else guard(-1, "Socket UDS neither connect or bind");
-    }
-    else if (m[1] == "tcp" || m[1] == "udp") {
-      inetaddr_t addr = inet_sockaddr(address);
+  //     std::string path(m[2]);
+  //     unlink(path.c_str());
+  //     int err = 0;
+  //     if (type == CONNECT) {
+  //       err = ::connect(socket_fd, (const sockaddr_t*)&addr, sizeof(addr));
+  //       guard(err, "Socket UDS couldn't connect: ");
+  //     }
+  //     else if (type == BIND) {
+  //       err = ::bind(socket_fd, (const sockaddr_t*)&addr, sizeof(addr));
+  //       guard(err, "Socket UDS couldn't bind: ");
+  //     }
+  //     else guard(-1, "Socket UDS neither connect or bind");
+  //   }
+  //   else if (m[1] == "tcp" || m[1] == "udp") {
+  //     inetaddr_t addr = inet_sockaddr(address);
 
-      int err = 0;
-      if (type == CONNECT) err = ::connect(socket_fd, (const sockaddr_t *)&addr, sizeof(addr));
-      else if (type == BIND) err = ::bind(socket_fd, (const sockaddr_t *)&addr, sizeof(addr));
-      else err = -1;
-      guard(err, "Socket::bind() failed: ");
-    }
-  }
+  //     int err = 0;
+  //     if (type == CONNECT) err = ::connect(socket_fd, (const sockaddr_t *)&addr, sizeof(addr));
+  //     else if (type == BIND) err = ::bind(socket_fd, (const sockaddr_t *)&addr, sizeof(addr));
+  //     else err = -1;
+  //     guard(err, "Socket::bind() failed: ");
+  //   }
+  // }
 };
 
 

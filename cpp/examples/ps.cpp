@@ -50,9 +50,10 @@ void cb(const message_t &m) {
 
 // subscriber
 void sub() {
+  inetaddr_t addr = inet_sockaddr("udp://*:" + to_string(PORT));
   SubscriberUDP s(sizeof(data_t));
-  s.bind("udp://*:" + to_string(PORT));
-  // s.bind(PORT);
+  // s.bind("udp://*:" + to_string(PORT));
+  s.bind(addr);
   // s.settimeout(5000);
   s.register_cb(cb); // you can have many callback functions
   // s.register_cb(cb);
