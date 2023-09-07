@@ -12,17 +12,20 @@ constexpr int LOOP = 5;
 string psudpbind = "udp://*:" + to_string(port);
 string psudpaddr = "udp://127.0.0.1:"+to_string(port);
 string psunix = "unix://./unix.ps.uds";
-string psunix2 = "unix://./unix.ps2.uds";
+// string psunix2 = "unix://./unix.ps2.uds";
 
 struct psdata_t { int a; };
 
+int i = 0;
+
 // data_t ps_test_data[LOOP]{{1},{2},{3},{4},{5}};
-vector<psdata_t> ps_test_data;
+// vector<psdata_t> ps_test_data;
 
 void callback(const message_t& m) {
-  static int i = 0;
+  // static int i = 0;
   psdata_t d = unpack<psdata_t>(m);
-  EXPECT_EQ(d.a, ps_test_data[i++].a);
+  // EXPECT_EQ(d.a, ps_test_data[i++].a);
+  EXPECT_EQ(d.a, i++);
 }
 
 void sub_thread() {
@@ -44,14 +47,17 @@ void pub_thread() {
   PublisherUDP p;
   p.register_addr(addr);
   for (int i=0; i < LOOP; ++i) {
-    message_t m = pack<psdata_t>(ps_test_data[i]);
+    psdata_t d{i};
+    // message_t m = pack<psdata_t>(ps_test_data[i]);
+    message_t m = pack<psdata_t>(d);
     p.publish(m);
     marko::msleep(1);
   }
 }
 
 TEST(marko, pub_sub_udp) {
-  for (int i=0; i<LOOP; ++i) ps_test_data.push_back({i});
+  // for (int i=0; i<LOOP; ++i) ps_test_data.push_back({i});
+  i = 0;
   thread subth(sub_thread);
   marko::msleep(1);
   thread pubth(pub_thread);
@@ -78,14 +84,16 @@ void pub_thread_un() {
   PublisherUnix p;
   p.register_addr(addr);
   for (int i=0; i < LOOP; ++i) {
-    message_t m = pack<psdata_t>(ps_test_data[i]);
+    psdata_t d{i};
+    message_t m = pack<psdata_t>(d);
     p.publish(m);
     marko::msleep(1);
   }
 }
 
 TEST(marko, pub_sub_unix) {
-  for (int i=0; i<LOOP; ++i) ps_test_data.push_back({i});
+  // for (int i=0; i<LOOP; ++i) ps_test_data.push_back({i});
+  i = 0;
   thread subth(sub_thread_un);
   marko::msleep(1);
   thread pubth(pub_thread_un);

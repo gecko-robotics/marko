@@ -18,19 +18,20 @@ string unix2 = "unix://./unix.rr2.uds";
 struct __attribute__((packed)) request_t { int a; };
 typedef request_t response_t;
 
-vector<request_t> test_data; //[LOOP]{{1},{2},{3},{4},{5}};
+// vector<request_t> test_data; //[LOOP]{{1},{2},{3},{4},{5}};
 
 // response callback, this processes the
 // request message and returns a response message
-message_t cb2(const message_t &m) {
+const message_t cb2(const message_t &m) {
   // cout << "cb" << endl;
   request_t req = unpack<request_t>(m);
 
-  response_t r{2*req.a};
-  message_t resp = pack<response_t>(r);
+  response_t resp{2*req.a};
+  message_t msg = pack<response_t>(resp);
 
-  // return std::move(resp);
-  return resp;
+  cout << "req: " << req.a << " resp: " << resp.a << endl;
+
+  return msg;
 }
 
 ////////////////////////////////////////////////////////////
@@ -42,11 +43,12 @@ void req_thread() {
   RequestUDP r(sizeof(response_t));
 
   for (int i=0; i<LOOP; ++i) {
-    message_t msg = pack<request_t>(test_data[i]);
+    request_t d{i};
+    message_t msg = pack<request_t>(d);
     message_t rp = r.request(msg, addr);
     response_t resp = unpack<response_t>(rp);
 
-    EXPECT_EQ(resp.a, 2*test_data[i].a);
+    EXPECT_EQ(resp.a, 2*d.a);
     marko::msleep(1);
   }
 }
@@ -62,7 +64,7 @@ void rep_thread() {
 }
 
 TEST(marko, req_rep_udp) {
-  for (int i=0; i<LOOP; ++i) test_data.push_back({i});
+  // for (int i=0; i<LOOP; ++i) test_data.push_back({i});
   thread repth(rep_thread);
   marko::msleep(1);
   thread reqth(req_thread);
@@ -100,14 +102,12 @@ void rep_thread_un() {
   unixaddr_t addr = unix_sockaddr(unix2);
   ReplyUnix r(sizeof(request_t));
   r.bind(addr);
-  // r.connect(addr);
 
   r.register_cb(cb2); // you can have more than 1 callback
   for (int i=0; i<LOOP; ++i) r.once();
 }
 
 TEST(marko, req_rep_unix) {
-  for (int i=0; i<LOOP; ++i) test_data.push_back({i});
   thread repth(rep_thread_un);
   marko::msleep(1);
   thread reqth(req_thread_un);
