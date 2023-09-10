@@ -8,8 +8,8 @@
 
 using namespace std;
 
-constexpr uint16_t PORT = 11311;
-constexpr int LOOP = 5;
+// constexpr uint16_t PORT = 11311;
+// constexpr int LOOP = 5;
 // subscription_t bc_test_data[LOOP]{
 //   {19,SUBSCRIBE},
 //   {72,UNSUBSCRIBE},
@@ -44,13 +44,13 @@ constexpr int LOOP = 5;
 //   }
 // }
 
-TEST(marko, broadcast_socket) {
-  // thread a(client);
-  // thread b(client);
-  // marko::msleep(500);
-  // thread c(server);
+// TEST(marko, broadcast_socket) {
+//   // thread a(client);
+//   // thread b(client);
+//   // marko::msleep(500);
+//   // thread c(server);
 
-  // a.join();
-  // b.join();
-  // c.join();
-}
+//   // a.join();
+//   // b.join();
+//   // c.join();
+// }

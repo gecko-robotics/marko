@@ -3,10 +3,17 @@
 #include <marko/marko.hpp>
 #include <string>
 #include <iostream>
+#include <stdint.h>
 
 using namespace std;
 
-struct data_t { int a; };
+struct __attribute__((packed)) data_t {
+  uint8_t u;
+  int a;
+  long l;
+  float f;
+  double d;
+};
 
 // data_t test_data[LOOP]{{1},{2},{3},{4},{5}};
 
@@ -41,9 +48,13 @@ TEST(marko, ascii) {
 }
 
 TEST(marko, message_t) {
-  data_t d{5};
+  data_t d{5,-500,10000,3.14176,-3.14147679801};
   message_t m = pack<data_t>(d);
   data_t e = unpack<data_t>(m);
+  EXPECT_EQ(d.u, e.u);
   EXPECT_EQ(d.a, e.a);
+  EXPECT_EQ(d.l, e.l);
+  EXPECT_FLOAT_EQ(d.f, e.f);
+  EXPECT_DOUBLE_EQ(d.d, e.d);
   EXPECT_EQ(sizeof(d), sizeof(e));
 }

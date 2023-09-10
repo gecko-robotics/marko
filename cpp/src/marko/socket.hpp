@@ -82,15 +82,6 @@ public:
     return err == 0 ? true : false;
   }
 
-  // // FIXME: move to UDP
-  // std::string getsockname() {
-  //   inetaddr_t addr = {0};
-  //   socklen_t addr_len = sizeof(addr);
-  //   int err = ::getsockname(socket_fd, (sockaddr_t*)&addr, &addr_len);
-  //   guard(err, "getsockname(): ");
-  //   return to_string(addr);
-  // }
-
   // bool available(long msec=1){
   bool available(){
     timeval_t tv{0,1000}; // 1 msec (1000 usec)

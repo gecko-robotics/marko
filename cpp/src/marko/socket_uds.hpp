@@ -70,11 +70,9 @@ class SocketUnix: public Socket {
   // }
 
   bool bind(const unixaddr_t& addr) {
-    // std::string path(addr.sun_path);
-    unlink(addr.sun_path); // if socket file exists, remove it otherwise bind will fail
+    // unlink(addr.sun_path); // if socket file exists, remove it otherwise bind will fail
 
     int err = ::bind(socket_fd, (const sockaddr_t*)&addr, sizeof(addr));
-    // guard(err, "Socket UDS couldn't bind: ");
     return err == 0 ? true : false;
   }
 
