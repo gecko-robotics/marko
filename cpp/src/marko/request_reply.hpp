@@ -9,9 +9,6 @@
 #pragma once
 
 
-// #include "event.hpp"  // Event
-// #include "socket_types.hpp"
-// #include "sockaddr.hpp"
 #include "socket.hpp"
 #include <functional> // std::function
 #include <string>

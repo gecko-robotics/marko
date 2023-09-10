@@ -29,7 +29,8 @@ void pub() {
 
   PublisherUDP p;
   // p.connect();
-  p.register_addr(addr);
+  p.bind(addr);
+  // p.register_addr(addr);
 
   for (int i = 0; i < MAX_LOOP; ++i) {
     data_t d;
@@ -53,8 +54,9 @@ void sub() {
   inetaddr_t addr = inet_sockaddr("udp://*:" + to_string(PORT));
   SubscriberUDP s(sizeof(data_t));
   // s.bind("udp://*:" + to_string(PORT));
-  s.bind(addr);
+  // s.bind(addr);
   // s.settimeout(5000);
+  s.connect(addr);
   s.register_cb(cb); // you can have many callback functions
   // s.register_cb(cb);
   for (int i=0; i < MAX_LOOP; ++i) s.once();
@@ -70,7 +72,7 @@ int main(int argc, char *argv[]) {
   string arg(argv[1]);
   if (arg == "p") pub();
   else if (arg == "s") sub();
-  else cout << "Usage: ./ps p|s" << endl;
+  else cout << "Usage: ./ps p|s\n publisher send 10 messages" << endl;
 
   return 0;
 }

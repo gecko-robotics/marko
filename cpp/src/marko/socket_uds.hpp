@@ -63,7 +63,7 @@ class SocketUnix: public Socket {
     return num;
   }
 
-  bool connect(const std::string& address) = delete;
+  bool connect(const unixaddr_t& addr) { return true; }
   // void connect(const unixaddr_t& addr) {
   //   int err = ::connect(socket_fd, (const sockaddr_t*)&addr, sizeof(addr));
   //   guard(err, "Socket UDS couldn't connect: ");

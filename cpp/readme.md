@@ -16,6 +16,8 @@ or broadcast to send/receive a message.
     - one way: `Publisher` -> `Subscriber`
     - bi-directional: `Reply` <-> `Request`
     - all messaging uses `message_t` for data
+    - `bind` to local port in udp or unix
+    - `connect` to remote host
 
 ## Usage
 

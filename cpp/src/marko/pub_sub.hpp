@@ -8,12 +8,7 @@
 ////////////////////////////////////////////////////////
 #pragma once
 
-// #include "base.hpp"
-// #include "event.hpp"
 #include "socket.hpp"
-// #include "socket_types.hpp"
-// #include "signals.hpp"
-// #include "sockaddr.hpp"
 #include <functional> // std::function
 #include <string>
 #include <vector>
@@ -57,10 +52,20 @@ public:
     for (const SOCKADDR &addr : clientaddrs) SOCKET::sendto(data, addr);
   }
 
-  inline void register_addr(const SOCKADDR &c) { clientaddrs.push_back(c); }
+  bool bind(const SOCKADDR& addr) {
+    register_addr(addr);
+    return SOCKET::bind(addr);
+  }
+
+  bool connect(const SOCKADDR& addr) {
+    register_addr(addr);
+    return SOCKET::connect(addr);
+  }
 
 protected:
   std::vector<SOCKADDR> clientaddrs;
+
+  inline void register_addr(const SOCKADDR &c) { clientaddrs.push_back(c); }
 };
 
 using PublisherUDP = Publisher<SocketUDP, inetaddr_t>;

@@ -55,8 +55,6 @@ public:
     }
   }
 
-  // socket_fd_t getSocketFD() { return socket_fd; }
-
   bool settimeout(long timeout_msec) {
     timeval_t tv = get_time(timeout_msec);
 
@@ -129,10 +127,6 @@ public:
     }
     return false;
   }
-
-  // void bind(const std::string& address) { setSocket(address, BIND); }
-  // void connect(const std::string& address) { setSocket(address, CONNECT); }
-
 protected:
   bool makeSocket(int family, int type, int proto) {
     socket_fd = ::socket(family, type, proto);
@@ -143,6 +137,17 @@ protected:
     }
     return true;
   }
+};
+
+
+
+
+  // socket_fd_t getSocketFD() { return socket_fd; }
+  // void bind(const std::string& address) { setSocket(address, BIND); }
+  // void connect(const std::string& address) { setSocket(address, CONNECT); }
+
+  // enum class connect_t {CONNECT, BIND};
+  // connect_t type;
 
   // inline void guard(int err, const std::string &msg) {
   //   if (err < 0) {
@@ -151,8 +156,6 @@ protected:
   //     throw std::runtime_error(msg + std::string(strerror(int(errno))));
   //   }
   // }
-};
-
   // enum ConType: uint8_t {
   //   CONNECT,
   //   BIND

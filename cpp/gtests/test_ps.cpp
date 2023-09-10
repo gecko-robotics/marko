@@ -42,7 +42,7 @@ void sub_thread() {
 void pub_thread() {
   inetaddr_t addr = inet_sockaddr(psudpaddr);
   PublisherUDP p;
-  p.register_addr(addr);
+  p.connect(addr);
   for (int i=0; i < LOOP; ++i) {
     psdata_t d{i};
     // message_t m = pack<psdata_t>(ps_test_data[i]);
@@ -78,7 +78,8 @@ void sub_thread_un() {
 void pub_thread_un() {
   // unixaddr_t addr = unix_sockaddr(psunix);
   PublisherUnix p;
-  p.register_addr(unaddr);
+  // p.register_addr(unaddr);
+  p.connect(unaddr);
   for (int i=0; i < LOOP; ++i) {
     psdata_t d{i};
     message_t m = pack<psdata_t>(d);
