@@ -19,7 +19,7 @@
 // extern int errno; // don't like this global value
 
 
-enum socket_error: uint8_t {
+enum class socket_error: uint8_t {
   OK = 0,
   CREATE_FAIL,
   CLOSE_FAIL,
