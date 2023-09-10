@@ -30,8 +30,8 @@ void request() {
   // r.connect();
 
 
-  SocketInfo si(r.getSocketFD());
-  si.info("Connect", SocketInfo::UDP);
+  // SocketInfo si(r.getSocketFD());
+  // si.info("Connect", SocketInfo::UDP);
 
   for (int i=0; i<LOOP; ++i) {
     request_t m{1.2345*double(i), i};
@@ -63,8 +63,8 @@ void reply() {
   // r.bind(PORT);
   // r.settimeout(1000);
 
-  SocketInfo si(r.getSocketFD());
-  si.info("Bind", SocketInfo::UDP);
+  // SocketInfo si(r.getSocketFD());
+  // si.info("Bind", SocketInfo::UDP);
 
   r.register_cb(cb); // you can have more than 1 callback
   for (int i=0; i<LOOP; ++i) r.once();

@@ -9,10 +9,10 @@
 #pragma once
 
 // #include "base.hpp"
-#include "event.hpp"
+// #include "event.hpp"
 #include "socket.hpp"
 // #include "socket_types.hpp"
-#include "signals.hpp"
+// #include "signals.hpp"
 // #include "sockaddr.hpp"
 #include <functional> // std::function
 #include <string>
@@ -28,8 +28,8 @@ public:
 
   void register_cb(SubCallback_t func) { callbacks.push_back(func); }
 
-  void loop() { while (true) once(); }
-  void loop(Event &event) { while (event.is_set()) once(); }
+  // void loop() { while (true) once(); }
+  // void loop(Event &event) { while (event.is_set()) once(); }
 
   void once() {
     message_t msg = SOCKET::recv(data_size);

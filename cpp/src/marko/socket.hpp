@@ -5,27 +5,39 @@
 \**************************************************/
 #pragma once
 
-#include "time.hpp"
-// #include <sockaddr.hpp>
-// #include "message.hpp"
+// #include "time.hpp"
 #include <errno.h> // errno
 #include <iostream>
 #include <string>
 #include <sys/ioctl.h>
 #include <sys/socket.h> // socket(), bind(), recvfrom(), ...
-// #include <sys/un.h>     // UDS
 #include <netinet/in.h> // for address structs
 #include <unistd.h>     // for close()
-// #include <map>
 #include <regex>
 #include <socket_defs.hpp>
 
-extern int errno; // don't like this global value
+// extern int errno; // don't like this global value
 
-// constexpr int SOCKET_ERR = -1;
-// constexpr int SOCKET_TIMEOUT = -1;
-// constexpr int SOCKET_OK = 0;
 
+enum socket_error: uint8_t {
+  OK = 0,
+  CREATE_FAIL,
+  CLOSE_FAIL,
+  RECV_ERROR,        // wrong size
+  RECEVFROM_ERROR,
+  RECV_TIMEOUT,      // for nonblocking, timeout (-1)
+  RECEVFROM_TIMEOUT,
+  SEND_ERROR,        //
+  SENDTO_ERROR,
+  BIND_ERROR,        //
+  GETSOCKNAME_ERROR  //
+};
+
+static
+void print_error() {
+  extern int errno; // don't like this
+  std::cout << "ERROR[" << int(errno) << "]: " << std::string(strerror(int(errno))) << std::endl;
+}
 
 class Socket {
   protected:
@@ -43,7 +55,7 @@ public:
     }
   }
 
-  socket_fd_t getSocketFD() { return socket_fd; }
+  // socket_fd_t getSocketFD() { return socket_fd; }
 
   void settimeout(long timeout_msec) {
     timeval_t tv = get_time(timeout_msec);

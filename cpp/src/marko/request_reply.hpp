@@ -1,21 +1,37 @@
-// /**************************************************\
-// * The MIT License (MIT)
-// * Copyright (c) 2014 Kevin Walchko
-// * see LICENSE for full details
-// \**************************************************/
-// ////////////////////////////////////////////////////////
-// //       Request / Reply
-// ////////////////////////////////////////////////////////
+/**************************************************\
+* The MIT License (MIT)
+* Copyright (c) 2014 Kevin Walchko
+* see LICENSE for full details
+\**************************************************/
+////////////////////////////////////////////////////////
+//       Request / Reply
+////////////////////////////////////////////////////////
 #pragma once
 
 
-#include "event.hpp"  // Event
+// #include "event.hpp"  // Event
 // #include "socket_types.hpp"
 // #include "sockaddr.hpp"
+#include "socket.hpp"
 #include <functional> // std::function
 #include <string>
 #include <vector>
 
+/*
+UDS
+----------------------------------
+in_req.uds: req binds for recv()
+in_rep.uds: rep binds for recv()
+
+req.bind(in_req.uds)
+rep.bind(in_rep.uds)
+
+req.sendto(in_rep.uds) -> rep.recv()
+rep.sendto(in_req.uds) -> req.recv()
+*/
+
+// #ifndef __RR_HPP__
+// #define __RR_HPP__
 
 template <typename SOCKET, typename SOCKADDR>
 class Reply : public SOCKET {
@@ -27,24 +43,32 @@ public:
 
   inline void register_cb(ReplyCallback_t func) { callback = func; }
 
-  void loop(Event &event) { while (event.is_set()) once(); }
-  void loop() { while (true) once(); }
+  // void loop(Event &event) { while (event.is_set()) once(); }
+  // void loop() { while (true) once(); }
 
-  void once() {
+  bool once() {
     SOCKADDR from_addr = {0};
     message_t m = SOCKET::recvfrom(msg_size, &from_addr);
+    if (m.size() == 0 || m.size() != msg_size) return false;
+    message_t r = callback(m);
+    SOCKET::sendto(r, from_addr);
+    return true;
+  }
+  // void once();
 
-    // std::cerr << "from_addr: " << from_addr << std::endl;
-    // std::cerr << "m.size(): " << m.size() << " " << msg_size << std::endl;
-
-    if (m.size() == 0 || m.size() != msg_size) return;
-
+  /*
+  I don't like this, how does this know the "to" address? Maybe it is in
+  the request for UDS?
+  */
+  bool once(const SOCKADDR& to) {
+    message_t m = SOCKET::recv(msg_size); // bind()
+    if (m.size() == 0 || m.size() != msg_size) return false;
     message_t r = callback(m);
 
-    // std::cerr << "r.size(): " << r.size() << std::endl;
-
-    SOCKET::sendto(r, from_addr);
-    // std::cerr << "once done" << std::endl;
+    // makeSocket(AF_UNIX, SOCK_DGRAM, 0);
+    // bind(to)
+    SOCKET::sendto(r, to);
+    return true;
   }
 
 protected:
@@ -53,7 +77,19 @@ protected:
 };
 
 using ReplyUDP = Reply<SocketUDP, inetaddr_t>;
-using ReplyUnix = Reply<SocketUnix, unixaddr_t>;
+using ReplyUnix = Reply<SocketUnix, unixaddr_t>; // broke
+
+// template<>
+// void ReplyUnix::once() {
+//   unixaddr_t from_addr = {0};
+//   message_t m = SocketUnix::recvfrom(msg_size, &from_addr);
+//   if (m.size() == 0 || m.size() != msg_size) return;
+//   message_t r = callback(m);
+//   SocketUnix::sendto(r, from_addr);
+// }
+
+// template<>
+// void ReplyUDP::once() {}
 
 // /////////////////////////////////////////////////////////////////
 
@@ -65,9 +101,6 @@ public:
 
   message_t request(const message_t &msg, const SOCKADDR &addr) {
     SOCKET::sendto(msg, addr);
-
-    // std::cerr << "waiting for reply" << std::endl;
-
     // SOCKADDR from_addr = {0};
     // message_t rep = SOCKET::recvfrom(msg_size, &from_addr);
     message_t rep = SOCKET::recv(msg_size);
@@ -80,3 +113,5 @@ protected:
 
 using RequestUDP = Request<SocketUDP, inetaddr_t>;
 using RequestUnix = Request<SocketUnix, unixaddr_t>;
+
+// #endif

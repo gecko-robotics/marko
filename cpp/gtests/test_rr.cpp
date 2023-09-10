@@ -18,18 +18,15 @@ string unix2 = "unix://./unix.rr2.uds";
 struct __attribute__((packed)) request_t { int a; };
 typedef request_t response_t;
 
-// vector<request_t> test_data; //[LOOP]{{1},{2},{3},{4},{5}};
-
 // response callback, this processes the
 // request message and returns a response message
 const message_t cb2(const message_t &m) {
-  // cout << "cb" << endl;
   request_t req = unpack<request_t>(m);
 
   response_t resp{2*req.a};
   message_t msg = pack<response_t>(resp);
 
-  cout << "req: " << req.a << " resp: " << resp.a << endl;
+  // cout << "req*2: " << 2*req.a << " resp: " << resp.a << endl;
 
   return msg;
 }
@@ -74,9 +71,14 @@ TEST(marko, req_rep_udp) {
 }
 
 //////////////////////////////////////////////////////////////
-// requester
+// requester - doesn't work
+/*
+req.bind(unix)
+req.r
+*/
 void req_thread_un() {
   unixaddr_t addr = unix_sockaddr(unix);
+  unixaddr_t to_reply = unix_sockaddr(unix2);
 
   RequestUnix r(sizeof(response_t));
   r.bind(addr);
@@ -87,7 +89,7 @@ void req_thread_un() {
   for (int i=0; i<LOOP; ++i) {
     request_t req{i};
     message_t msg = pack<request_t>(req);
-    message_t rp = r.request(msg, addr);
+    message_t rp = r.request(msg, to_reply);
     response_t resp = unpack<response_t>(rp);
 
     EXPECT_EQ(resp.a, 2*req.a);
@@ -99,12 +101,13 @@ void req_thread_un() {
 
 // reply
 void rep_thread_un() {
+  unixaddr_t to_request = unix_sockaddr(unix);
   unixaddr_t addr = unix_sockaddr(unix2);
   ReplyUnix r(sizeof(request_t));
   r.bind(addr);
 
   r.register_cb(cb2); // you can have more than 1 callback
-  for (int i=0; i<LOOP; ++i) r.once();
+  for (int i=0; i<LOOP; ++i) r.once(to_request);
 }
 
 TEST(marko, req_rep_unix) {

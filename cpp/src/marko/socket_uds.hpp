@@ -1,4 +1,8 @@
-
+/**************************************************
+* The MIT License (MIT)
+* Copyright (c) 2014 Kevin Walchko
+* see LICENSE for full details
+***************************************************/
 #pragma once
 
 #include "socket.hpp"
@@ -54,7 +58,7 @@ class SocketUnix: public Socket {
       flags,
       (sockaddr_t*)&addr, sizeof(addr));
 
-    guard(msg.size() != num, "sendto() sent incorrect number of bytes");
+    // guard(msg.size() != num, "sendto() sent incorrect number of bytes");
     // std::cerr << "UDS sendto " << msg.size() << std::endl;
     return num;
   }
