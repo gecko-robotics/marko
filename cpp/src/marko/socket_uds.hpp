@@ -41,7 +41,7 @@ class SocketUnix: public Socket {
   message_t recv(size_t msg_size, const int flags=0) {
     message_t dst(msg_size);
     int num = ::recv(socket_fd, dst.data(), msg_size, flags);
-    guard(num, "Unix recv: ");
+    // guard(num, "Unix recv: ");
     // std::cout << "recvfrom done msg: " << dst.capacity() << " " << dst.size() << std::endl;
 
     // FIXME: add msg_size != dst.size() ???
@@ -63,18 +63,19 @@ class SocketUnix: public Socket {
     return num;
   }
 
-  void connect(const std::string& address) = delete;
+  bool connect(const std::string& address) = delete;
   // void connect(const unixaddr_t& addr) {
   //   int err = ::connect(socket_fd, (const sockaddr_t*)&addr, sizeof(addr));
   //   guard(err, "Socket UDS couldn't connect: ");
   // }
 
-  void bind(const unixaddr_t& addr) {
+  bool bind(const unixaddr_t& addr) {
     // std::string path(addr.sun_path);
     unlink(addr.sun_path); // if socket file exists, remove it otherwise bind will fail
 
     int err = ::bind(socket_fd, (const sockaddr_t*)&addr, sizeof(addr));
-    guard(err, "Socket UDS couldn't bind: ");
+    // guard(err, "Socket UDS couldn't bind: ");
+    return err == 0 ? true : false;
   }
 
 };

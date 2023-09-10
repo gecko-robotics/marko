@@ -18,15 +18,16 @@ class SocketUDP: public Socket {
   //   bind(INADDR_ANY, port);
   // }
 
-  void bind(const inetaddr_t& addr) {
+  bool bind(const inetaddr_t& addr) {
     // inetaddr_t addr = make_sockaddr(inaddr, port);
     int err = ::bind(socket_fd, (const struct sockaddr *)&addr, sizeof(addr));
-    guard(err, "SocketUDP::bind() failed: ");
+    // guard(err, "SocketUDP::bind() failed: ");
+    return err == 0 ? true : false;
   }
 
-  void connect(const inetaddr_t& addr) {
-    reuseSocket(true);
-    bind(addr);
+  bool connect(const inetaddr_t& addr) {
+    if (reuseSocket(true) == false) return false;
+    return bind(addr);
   }
 
   // void connect(const std::string&) = delete;
@@ -68,18 +69,17 @@ class SocketUDP: public Socket {
       flags,
       (struct sockaddr *)&addr, sizeof(addr));
 
-    guard(msg.size() != num, "sendto() sent incorrect number of bytes");
+    // guard(msg.size() != num, "sendto() sent incorrect number of bytes");
     // std::cout << "sendto done" << std::endl;
     return num;
   }
 
-
-  // FIXME: move to UDP
   std::string getsockname() {
     inetaddr_t addr = {0};
     socklen_t addr_len = sizeof(addr);
     int err = ::getsockname(socket_fd, (sockaddr_t*)&addr, &addr_len);
-    guard(err, "getsockname(): ");
+    // guard(err, "getsockname(): ");
+    if (err != 0) return std::string("");
     return to_string(addr);
   }
 };

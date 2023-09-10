@@ -22,8 +22,8 @@ class SocketBC: public SocketUDP {
   }
   ~SocketBC() {}
 
-  void bind(const std::string&) = delete;
-  void connect(const std::string&) = delete;
+  bool bind(const std::string&) = delete;
+  bool connect(const std::string&) = delete;
 
   inline int cast(const message_t& msg){
     return SocketUDP::sendto(msg, bc_addr);

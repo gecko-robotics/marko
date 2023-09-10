@@ -57,25 +57,29 @@ public:
 
   // socket_fd_t getSocketFD() { return socket_fd; }
 
-  void settimeout(long timeout_msec) {
+  bool settimeout(long timeout_msec) {
     timeval_t tv = get_time(timeout_msec);
 
     int err = ::setsockopt(socket_fd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
-    guard(err, "settimeout(): ");
+    // guard(err, "settimeout(): ");
+    return err == 0 ? true : false;
   }
 
-  void setnonblocking(bool val) {
+  bool setnonblocking(bool val) {
     // int flags = guard(fcntl(socket_fd, F_GETFL), "setblocking(): ");
     // guard(fcntl(socket_fd, F_SETFL, flags | O_NONBLOCK), "setblocking(): ");
 
     int on = val ? 1 : 0; // FIONBIO - enable nonblocking
-    guard(ioctl(socket_fd, FIONBIO, (char *)&on), "setnonblocking(): ");
+    // guard(ioctl(socket_fd, FIONBIO, (char *)&on), "setnonblocking(): ");
+    int err = ioctl(socket_fd, FIONBIO, (char *)&on);
+    return err == 0 ? true : false;
   }
 
   // level: IPPROTO_TCP, IPPROTO_UDP, IPPROTO_IP, SOL_SOCKET
-  void setsockopt(int level, int name, int val) {
+  bool setsockopt(int level, int name, int val) {
     int err = ::setsockopt(socket_fd, level, name, (char *)&val, sizeof(val));
-    guard(err, "setsockopt(): ");
+    // guard(err, "setsockopt(): ");
+    return err == 0 ? true : false;
   }
 
   // // FIXME: move to UDP
@@ -98,7 +102,8 @@ public:
     // select searchs up to not including socket+1
     // don't care about writefds and exceptfds:
     int err = select(socket_fd+1, &readfds, NULL, NULL, &tv);
-    guard(err, "Socket::available select issue");
+    // guard(err, "Socket::available select issue");
+    if (err > 0) return false;
 
     if (FD_ISSET(socket_fd, &readfds)) return true;
     return false;
@@ -114,40 +119,48 @@ public:
     // select searchs up to not including socket+1
     // don't care about readfds and exceptfds:
     int err = select(socket_fd+1, NULL, &writefds, NULL, &tv);
-    guard(err, "Socket::availableForWrite select issue");
+    // guard(err, "Socket::availableForWrite select issue");
+    if (err > 0) return false;
 
     if (FD_ISSET(socket_fd, &writefds)) return true;
     return false;
   }
 
-  void reuseSocket(bool enable) {
+  bool reuseSocket(bool enable) {
     // allow multiple sockets to re-use the same address and port
     if (enable) {
-      setsockopt(SOL_SOCKET, SO_REUSEPORT, 1);
-      setsockopt(SOL_SOCKET, SO_REUSEADDR, 1);
+      bool ok = setsockopt(SOL_SOCKET, SO_REUSEPORT, 1);
+      return ok ||  setsockopt(SOL_SOCKET, SO_REUSEADDR, 1);
     }
     else {
-      setsockopt(SOL_SOCKET, SO_REUSEPORT, 0);
-      setsockopt(SOL_SOCKET, SO_REUSEADDR, 0);
+      bool ok = setsockopt(SOL_SOCKET, SO_REUSEPORT, 0);
+      return ok || setsockopt(SOL_SOCKET, SO_REUSEADDR, 0);
     }
+    return false;
   }
 
   // void bind(const std::string& address) { setSocket(address, BIND); }
   // void connect(const std::string& address) { setSocket(address, CONNECT); }
 
 protected:
-  void makeSocket(int family, int type, int proto) {
+  bool makeSocket(int family, int type, int proto) {
     socket_fd = ::socket(family, type, proto);
-    guard(socket_fd, "Socket::makeSocket() failed: ");
+    // guard(socket_fd, "Socket::makeSocket() failed: ");
+    if (socket_fd < 0) {
+      close();
+      return false;
+    }
+    return true;
   }
 
-  inline void guard(int err, const std::string &msg) {
-    if (err < 0) {
-      this->close();
-      std::cout << msg + std::string(strerror(int(errno))) << std::endl;
-      throw std::runtime_error(msg + std::string(strerror(int(errno))));
-    }
-  }
+  // inline void guard(int err, const std::string &msg) {
+  //   if (err < 0) {
+  //     this->close();
+  //     std::cout << msg + std::string(strerror(int(errno))) << std::endl;
+  //     throw std::runtime_error(msg + std::string(strerror(int(errno))));
+  //   }
+  // }
+};
 
   // enum ConType: uint8_t {
   //   CONNECT,
@@ -189,7 +202,7 @@ protected:
   //     guard(err, "Socket::bind() failed: ");
   //   }
   // }
-};
+// };
 
 
 
