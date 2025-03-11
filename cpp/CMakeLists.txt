@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.21.0)
 project(marko VERSION 2023.06.14.0 LANGUAGES CXX)
 
-include(FetchContent)
+# include(FetchContent)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -26,11 +26,11 @@ if(PROJECT_IS_TOP_LEVEL)
     set(BUILD_EXAMPLES ON)
     set(BUILD_TESTS ON)
 
-    FetchContent_Declare(
-        gtest
-        URL https://github.com/google/googletest/archive/refs/tags/v1.14.0.zip
-    )
-    list(APPEND libs gtest)
+    # FetchContent_Declare(
+    #     gtest
+    #     URL https://github.com/google/googletest/archive/refs/tags/v1.14.0.zip
+    # )
+    # list(APPEND libs gtest)
 
 else()
     message(STATUS "-> ${PROJECT_NAME} is submodule")
@@ -39,23 +39,27 @@ else()
 endif()
 
 # socket -----------------
-FetchContent_Declare(
-  socket_defs
-  GIT_REPOSITORY "https://github.com/gecko-robotics/socket.git"
-  GIT_TAG "origin/main"
-)
+# FetchContent_Declare(
+#   socket_defs
+#   GIT_REPOSITORY "https://github.com/gecko-robotics/socket.git"
+#   GIT_TAG "origin/main"
+# )
 
-list(APPEND libs socket_defs)
+# list(APPEND libs socket_defs)
 
-FetchContent_MakeAvailable( ${libs} )
+# FetchContent_MakeAvailable( ${libs} )
 
 # Library =====================================================================
 add_library(${PROJECT_NAME} INTERFACE)
-target_include_directories(${PROJECT_NAME} INTERFACE src)
-target_link_libraries(${PROJECT_NAME}
-    INTERFACE
-        socket_defs
-)
+target_include_directories(${PROJECT_NAME}
+  INTERFACE
+    src
+    src/socket_defs)
+    
+# target_link_libraries(${PROJECT_NAME}
+#     INTERFACE
+#         socket_defs
+# )
 
 # Examples ====================
 message(STATUS "Building ${PROJECT_NAME} examples is ${BUILD_EXAMPLES}")

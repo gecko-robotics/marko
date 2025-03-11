@@ -9,3 +9,5 @@ old
 poetry.lock
 dist
 .pytest_cache
+
+cpp/src/socket_defs
